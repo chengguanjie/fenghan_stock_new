@@ -17,7 +17,7 @@ COPY src ./src
 COPY public ./public
 
 # 安装依赖并构建
-RUN npm ci
+RUN npm install
 RUN npm run build
 
 # 生产阶段 - 使用轻量级的Node镜像提供静态文件

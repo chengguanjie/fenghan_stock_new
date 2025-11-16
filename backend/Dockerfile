@@ -12,7 +12,7 @@ COPY src ./src
 COPY prisma ./prisma
 
 # 安装依赖并构建TypeScript
-RUN npm ci
+RUN npm install
 RUN npm run build
 
 # 生产阶段
@@ -22,7 +22,7 @@ WORKDIR /app
 
 # 安装生产依赖
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # 复制Prisma客户端
 COPY prisma ./prisma
