@@ -1,12 +1,9 @@
 # 后端Dockerfile
 # 构建Express服务器
 
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /app
-
-# 安装构建依赖 (用于编译原生模块)
-RUN apk add --no-cache python3 make g++ gcc
 
 # 复制后端源代码
 COPY package*.json ./
@@ -19,7 +16,7 @@ RUN npm install
 RUN npm run build
 
 # 生产阶段
-FROM node:22-alpine
+FROM node:22-slim
 
 WORKDIR /app
 
