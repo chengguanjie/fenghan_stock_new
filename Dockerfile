@@ -34,12 +34,9 @@ RUN npm install -g serve
 # 从构建阶段复制构建输出
 COPY --from=builder /app/dist ./dist
 
-# 暴露端口
-EXPOSE 5173
+# 暴露端口 (Zeabur 会使用 PORT 环境变量)
+EXPOSE 8080
+ENV PORT=8080
 
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5173', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-# 启动应用 - 监听所有网络接口以接收外部流量
-CMD ["serve", "-s", "dist", "-l", "tcp://0.0.0.0:5173"]
+# 启动应用 - 使用 PORT 环境变量,监听所有网络接口
+CMD sh -c "serve -s dist -l tcp://0.0.0.0:${PORT}"
