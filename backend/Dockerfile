@@ -14,14 +14,14 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY prisma ./prisma
 
-# 安装依赖
+# 安装所有依赖（包括devDependencies，因为需要prisma和typescript）
 RUN npm install --legacy-peer-deps
 
 # 重建原生模块以确保兼容性
 RUN npm rebuild
 
-# 生成Prisma客户端（在构建阶段生成，使用项目中的prisma版本）
-RUN ./node_modules/.bin/prisma generate
+# 生成Prisma客户端（明确指定版本5.22.0以确保与@prisma/client匹配）
+RUN npx prisma@5.22.0 generate
 
 # 构建TypeScript
 RUN npm run build
