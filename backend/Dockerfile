@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# 安装所有依赖（包括 devDependencies，需要 TypeScript）
-RUN npm install --legacy-peer-deps
+# 安装所有依赖（明确包括 devDependencies，需要 TypeScript 和 Prisma CLI）
+RUN npm install --legacy-peer-deps --include=dev
 
 # 复制 Prisma schema
 COPY prisma ./prisma
@@ -19,16 +19,11 @@ COPY prisma ./prisma
 # 生成 Prisma 客户端（明确指定版本 5.22.0 以匹配 @prisma/client）
 RUN npx prisma@5.22.0 generate
 
-# 调试：检查 typescript 是否安装
-RUN echo "=== Checking typescript installation ===" && \
-    npm list typescript || echo "TypeScript not found in dependencies" && \
-    ls -la node_modules/.bin/ | grep -E "tsc|typescript" || echo "No tsc binary found"
-
 # 复制后端源代码
 COPY src ./src
 
-# 构建 TypeScript（直接使用 node_modules 中的 tsc）
-RUN ./node_modules/.bin/tsc
+# 构建 TypeScript（使用 npm run build，现在 devDependencies 已正确安装）
+RUN npm run build
 
 # 生产阶段
 FROM node:22-slim
