@@ -16,14 +16,14 @@ RUN npm install --legacy-peer-deps
 # 复制 Prisma schema
 COPY prisma ./prisma
 
-# 生成 Prisma 客户端
-RUN npx prisma generate
+# 生成 Prisma 客户端（明确指定版本 5.22.0 以匹配 @prisma/client）
+RUN npx prisma@5.22.0 generate
 
 # 复制后端源代码
 COPY src ./src
 
-# 构建应用（npm run build 会运行 tsc）
-RUN npm run build
+# 构建 TypeScript（使用 npx 确保能找到 tsc）
+RUN npx tsc
 
 # 生产阶段
 FROM node:22-slim
