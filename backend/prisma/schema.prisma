@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(uuid()) @db.Char(36)
+  email            String            @unique @db.VarChar(255)
+  passwordHash     String            @map("password_hash") @db.VarChar(255)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  auditLogs        AuditLog[]
+  inventoryItems   InventoryItem[]
+  inventoryRecords InventoryRecord[]
+  passwordHistory  PasswordHistory[]
+  profile          Profile?
+  roles            UserRole[]
+
+  @@map("users")
+}
+
+model Profile {
+  id                  String   @id @default(uuid()) @db.Char(36)
+  userId              String   @unique @map("user_id") @db.Char(36)
+  name                String   @db.VarChar(100)
+  workshop            String   @db.VarChar(100)
+  forcePasswordChange Boolean  @default(true) @map("force_password_change")
+  createdAt           DateTime @default(now()) @map("created_at")
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([name])
+  @@index([workshop])
+  @@map("profiles")
+}
+
+model UserRole {
+  id        String   @id @default(uuid()) @db.Char(36)
+  userId    String   @map("user_id") @db.Char(36)
+  role      AppRole
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@index([userId])
+  @@map("user_roles")
+}
+
+model InventoryItem {
+  id               String            @id @default(uuid()) @db.Char(36)
+  name             String            @db.VarChar(100)
+  workshop         String            @db.VarChar(100)
+  area             String            @db.VarChar(100)
+  materialName     String            @map("material_name") @db.VarChar(255)
+  unit             String            @db.VarChar(50)
+  uploadedAt       DateTime          @default(now()) @map("uploaded_at")
+  uploadedBy       String?           @map("uploaded_by") @db.Char(36)
+  materialCode     String?           @map("material_code") @db.VarChar(100)
+  uploadDate       DateTime          @map("upload_date") @db.Date
+  uploader         User?             @relation(fields: [uploadedBy], references: [id])
+  inventoryRecords InventoryRecord[]
+
+  @@index([name])
+  @@index([workshop])
+  @@index([uploadedBy])
+  @@index([uploadDate])
+  @@map("inventory_items")
+}
+
+model InventoryRecord {
+  id              String        @id @default(uuid()) @db.Char(36)
+  userId          String        @map("user_id") @db.Char(36)
+  inventoryItemId String        @map("inventory_item_id") @db.Char(36)
+  actualQuantity  Decimal       @map("actual_quantity") @db.Decimal(10, 2)
+  status          RecordStatus  @default(draft)
+  recordedAt      DateTime      @default(now()) @map("recorded_at")
+  submittedAt     DateTime?     @map("submitted_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([inventoryItemId])
+  @@map("inventory_records")
+}
+
+model AuditLog {
+  id           String      @id @default(uuid()) @db.Char(36)
+  userId       String?     @map("user_id") @db.Char(36)
+  action       String      @db.VarChar(100)
+  resourceType String      @map("resource_type") @db.VarChar(100)
+  resourceId   String?     @map("resource_id") @db.VarChar(100)
+  details      Json?
+  ipAddress    String?     @map("ip_address") @db.VarChar(45)
+  userAgent    String?     @map("user_agent") @db.Text
+  status       AuditStatus @default(success)
+  errorMessage String?     @map("error_message") @db.Text
+  createdAt    DateTime    @default(now()) @map("created_at")
+  user         User?       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([createdAt])
+  @@index([status])
+  @@map("audit_logs")
+}
+
+model PasswordHistory {
+  id           String   @id @default(uuid()) @db.Char(36)
+  userId       String   @map("user_id") @db.Char(36)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("password_history")
+}
+
+enum AppRole {
+  admin
+  viewer
+}
+
+enum RecordStatus {
+  draft
+  submitted
+}
+
+enum AuditStatus {
+  success
+  failure
+  error
+}

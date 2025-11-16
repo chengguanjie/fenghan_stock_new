@@ -1,0 +1,109 @@
+name: Deploy to Zeabur
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # 后端构建和测试
+  backend-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: fenghan_stock_test
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Setup database
+      working-directory: ./backend
+      env:
+        DATABASE_URL: mysql://root:root@localhost:3306/fenghan_stock_test
+      run: |
+        npx prisma db push --skip-generate
+
+    - name: Run backend tests
+      working-directory: ./backend
+      env:
+        DATABASE_URL: mysql://root:root@localhost:3306/fenghan_stock_test
+        NODE_ENV: test
+      run: npm test
+
+    - name: Build backend
+      working-directory: ./backend
+      run: npm run build
+
+  # 前端构建和测试
+  frontend-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install frontend dependencies
+      run: npm ci
+
+    - name: Run linter
+      run: npm run lint
+
+    - name: Run frontend tests
+      run: npm test
+
+    - name: Build frontend
+      run: npm run build
+
+  # 部署到Zeabur(仅在push到main/master时)
+  deploy:
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Deploy to Zeabur
+      env:
+        ZEABUR_TOKEN: ${{ secrets.ZEABUR_TOKEN }}
+        ZEABUR_PROJECT_ID: ${{ secrets.ZEABUR_PROJECT_ID }}
+      run: |
+        # 这里使用Zeabur CLI或API进行部署
+        # 需要在GitHub Secrets中配置ZEABUR_TOKEN和ZEABUR_PROJECT_ID
+        echo "Deploying to Zeabur..."
+        # npx zeabur deploy --token $ZEABUR_TOKEN --project $ZEABUR_PROJECT_ID
+
+    - name: Notify deployment
+      if: always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const deployment_status = '${{ job.status }}';
+          console.log(`Deployment ${deployment_status}`);

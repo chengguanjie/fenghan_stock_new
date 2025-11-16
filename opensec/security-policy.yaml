@@ -1,0 +1,361 @@
+# OpenSEC 安全策略配置文件
+# 凤韩食品库存盘点系统安全规范
+
+version: "1.0.0"
+name: "凤韩食品库存盘点系统安全策略"
+description: "定义系统的安全策略、权限控制和数据保护规范"
+
+# 认证策略
+authentication:
+  # 密码策略
+  password_policy:
+    min_length: 8
+    max_length: 128
+    require_uppercase: true
+    require_lowercase: true
+    require_numbers: true
+    require_special_chars: false
+    password_expiry_days: 90
+    password_history_count: 5
+    max_login_attempts: 5
+    lockout_duration_minutes: 30
+    
+  # 会话管理
+  session:
+    timeout_minutes: 120
+    idle_timeout_minutes: 30
+    max_concurrent_sessions: 3
+    refresh_token_rotation: true
+    secure_cookie: true
+    same_site: "strict"
+    
+  # 多因素认证（可选）
+  mfa:
+    enabled: false
+    required_for_admin: true
+    methods:
+      - totp
+      - sms
+
+# 授权策略
+authorization:
+  # 角色定义
+  roles:
+    - name: "admin"
+      description: "系统管理员"
+      permissions:
+        - "user:create"
+        - "user:read"
+        - "user:update"
+        - "user:delete"
+        - "inventory:create"
+        - "inventory:read"
+        - "inventory:update"
+        - "inventory:delete"
+        - "inventory:approve"
+        - "inventory:reject"
+        - "report:read"
+        - "report:export"
+        - "system:configure"
+        
+    - name: "operator"
+      description: "盘点操作员"
+      permissions:
+        - "inventory:create"
+        - "inventory:read"
+        - "inventory:update"
+        - "report:read"
+        
+    - name: "viewer"
+      description: "只读用户"
+      permissions:
+        - "inventory:read"
+        - "report:read"
+  
+  # 资源访问控制
+  resource_access:
+    # 盘点记录访问控制
+    inventory_records:
+      create:
+        roles: ["admin", "operator"]
+        conditions:
+          - "user.is_active == true"
+          - "user.force_password_change == false"
+      read:
+        roles: ["admin", "operator", "viewer"]
+        conditions:
+          - "user.is_active == true"
+      update:
+        roles: ["admin", "operator"]
+        conditions:
+          - "user.is_active == true"
+          - "record.status == 'pending' OR user.role == 'admin'"
+      delete:
+        roles: ["admin"]
+        conditions:
+          - "user.is_active == true"
+      approve:
+        roles: ["admin"]
+        conditions:
+          - "user.is_active == true"
+          - "record.status == 'pending'"
+          
+    # 用户管理访问控制
+    users:
+      create:
+        roles: ["admin"]
+      read:
+        roles: ["admin"]
+      update:
+        roles: ["admin"]
+        conditions:
+          - "target_user.id != user.id OR action == 'update_self'"
+      delete:
+        roles: ["admin"]
+        conditions:
+          - "target_user.id != user.id"
+
+# 数据保护
+data_protection:
+  # 敏感数据加密
+  encryption:
+    at_rest:
+      enabled: true
+      algorithm: "AES-256-GCM"
+      fields:
+        - "users.password_hash"
+        - "users.email"
+        - "users.phone"
+    in_transit:
+      enabled: true
+      protocol: "TLS 1.3"
+      min_version: "TLS 1.2"
+      
+  # 数据脱敏
+  masking:
+    enabled: true
+    rules:
+      - field: "users.phone"
+        pattern: "***-****-{last4}"
+      - field: "users.email"
+        pattern: "{first3}***@{domain}"
+        
+  # 数据备份
+  backup:
+    enabled: true
+    frequency: "daily"
+    retention_days: 30
+    encryption: true
+
+# 审计日志
+audit_logging:
+  enabled: true
+  log_level: "info"
+  
+  # 需要记录的事件
+  events:
+    authentication:
+      - login_success
+      - login_failure
+      - logout
+      - password_change
+      - password_reset
+      - account_locked
+      
+    authorization:
+      - permission_denied
+      - role_changed
+      
+    data_access:
+      - record_created
+      - record_updated
+      - record_deleted
+      - record_approved
+      - record_rejected
+      - data_exported
+      
+    system:
+      - config_changed
+      - user_created
+      - user_deleted
+      - user_deactivated
+      
+  # 日志保留
+  retention:
+    duration_days: 365
+    archive_after_days: 90
+    
+  # 日志字段
+  fields:
+    - timestamp
+    - user_id
+    - username
+    - ip_address
+    - user_agent
+    - action
+    - resource_type
+    - resource_id
+    - status
+    - error_message
+
+# 输入验证
+input_validation:
+  # 通用验证规则
+  general:
+    max_string_length: 1000
+    max_array_length: 100
+    max_file_size_mb: 10
+    allowed_file_types:
+      - "application/vnd.ms-excel"
+      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      - "text/csv"
+      
+  # 字段级验证
+  fields:
+    username:
+      type: "string"
+      min_length: 3
+      max_length: 50
+      pattern: "^[a-zA-Z0-9_-]+$"
+      sanitize: true
+      
+    email:
+      type: "email"
+      max_length: 255
+      sanitize: true
+      
+    phone:
+      type: "string"
+      pattern: "^1[3-9]\\d{9}$"
+      sanitize: true
+      
+    product_code:
+      type: "string"
+      min_length: 1
+      max_length: 50
+      sanitize: true
+      
+    quantity:
+      type: "number"
+      min: 0
+      max: 999999
+      
+    notes:
+      type: "string"
+      max_length: 500
+      sanitize: true
+      xss_protection: true
+
+# API 安全
+api_security:
+  # 速率限制
+  rate_limiting:
+    enabled: true
+    global:
+      requests_per_minute: 100
+      requests_per_hour: 1000
+    per_endpoint:
+      login:
+        requests_per_minute: 5
+        requests_per_hour: 20
+      register:
+        requests_per_minute: 3
+        requests_per_hour: 10
+      data_export:
+        requests_per_minute: 2
+        requests_per_hour: 10
+        
+  # CORS 配置
+  cors:
+    enabled: true
+    allowed_origins:
+      - "https://lovable.dev"
+      - "http://localhost:5173"
+      - "http://localhost:3000"
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+    allowed_headers:
+      - "Content-Type"
+      - "Authorization"
+      - "X-Requested-With"
+    max_age_seconds: 3600
+    
+  # 请求头安全
+  security_headers:
+    x_frame_options: "DENY"
+    x_content_type_options: "nosniff"
+    x_xss_protection: "1; mode=block"
+    strict_transport_security: "max-age=31536000; includeSubDomains"
+    content_security_policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    referrer_policy: "strict-origin-when-cross-origin"
+
+# 威胁防护
+threat_protection:
+  # SQL 注入防护
+  sql_injection:
+    enabled: true
+    use_parameterized_queries: true
+    input_sanitization: true
+    
+  # XSS 防护
+  xss_protection:
+    enabled: true
+    output_encoding: true
+    content_security_policy: true
+    
+  # CSRF 防护
+  csrf_protection:
+    enabled: true
+    token_required: true
+    same_site_cookie: "strict"
+    
+  # 暴力破解防护
+  brute_force_protection:
+    enabled: true
+    max_attempts: 5
+    lockout_duration_minutes: 30
+    progressive_delay: true
+
+# 合规性
+compliance:
+  # 数据隐私
+  data_privacy:
+    gdpr_compliant: false
+    data_retention_days: 365
+    right_to_deletion: true
+    data_portability: true
+    
+  # 行业标准
+  standards:
+    - "ISO 27001"
+    - "OWASP Top 10"
+
+# 监控和告警
+monitoring:
+  # 安全事件监控
+  security_events:
+    - multiple_failed_logins
+    - privilege_escalation_attempt
+    - unusual_data_access
+    - data_exfiltration_attempt
+    - configuration_changes
+    
+  # 告警阈值
+  alerts:
+    failed_login_threshold: 5
+    data_export_threshold: 10
+    api_error_rate_threshold: 0.05
+    
+  # 告警通知
+  notifications:
+    email:
+      enabled: true
+      recipients:
+        - "security@fenghan.com"
+        - "admin@fenghan.com"
+    sms:
+      enabled: false

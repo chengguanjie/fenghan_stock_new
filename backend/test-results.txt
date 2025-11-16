@@ -1,0 +1,150 @@
+==================================
+凤韩食品库存盘点系统 - API测试报告
+测试时间: 2025年11月15日 星期六 23时48分53秒 CST
+==================================
+
+----------------------------------------
+测试 1: 健康检查
+方法: GET /health
+状态码: 404 (期望: 200)
+响应: {"success":false,"error":"接口不存在"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 2: 注册管理员
+方法: POST /auth/register
+状态码: 201 (期望: 201)
+响应: {"success":true,"message":"注册成功","data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk1YjE3Zi01MjViLTRiN2EtYTBhNS0zNmY2NTVmM2MyYTkiLCJlbWFpbCI6ImFkbWluQHRlc3QuY29tIiwicm9sZXMiOlsidmlld2VyIl0sImlhdCI6MTc2MzIyMTczNSwiZXhwIjoxNzYzMjI4OTM1LCJpc3MiOiJzdG9jay1kZWNrLWFwaSJ9.s2LEOKcWRZM-h_u3AuvNZd0qFLKbSnVMeXd96eQZbV8","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk1YjE3Zi01MjViLTRiN2EtYTBhNS0zNmY2NTVmM2MyYTkiLCJlbWFpbCI6ImFkbWluQHRlc3QuY29tIiwicm9sZXMiOlsidmlld2VyIl0sImlhdCI6MTc2MzIyMTczNSwiZXhwIjoxNzYzODI2NTM1LCJpc3MiOiJzdG9jay1kZWNrLWFwaSJ9.-mVVxiGwcZhRZ3YNAz8p8uOWly_tSXD5mgDJRFaTs2Y","user":{"id":"6795b17f-525b-4b7a-a0a5-36f655f3c2a9","email":"admin@test.com","name":"测试管理员","workshop":"测试车间","roles":["viewer"],"forcePasswordChange":true}}}
+结果: ✓ 通过
+
+----------------------------------------
+测试 2: 注册普通用户
+方法: POST /auth/register
+状态码: 201 (期望: 201)
+响应: {"success":true,"message":"注册成功","data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWFhYmE0MS0wYWExLTQ0Y2MtYmQyZi1jNjE4ZGJmNTljMzkiLCJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJyb2xlcyI6WyJ2aWV3ZXIiXSwiaWF0IjoxNzYzMjIxNzM1LCJleHAiOjE3NjMyMjg5MzUsImlzcyI6InN0b2NrLWRlY2stYXBpIn0.2ryewrutD0ynWdFM_Q8lY275PMovfrfLyGP9fPO87QI","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWFhYmE0MS0wYWExLTQ0Y2MtYmQyZi1jNjE4ZGJmNTljMzkiLCJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJyb2xlcyI6WyJ2aWV3ZXIiXSwiaWF0IjoxNzYzMjIxNzM1LCJleHAiOjE3NjM4MjY1MzUsImlzcyI6InN0b2NrLWRlY2stYXBpIn0.6IiX6oyV1wojQpC9cVyNQM6moR6XbMwx1dy_uGQu7TM","user":{"id":"e1aaba41-0aa1-44cc-bd2f-c618dbf59c39","email":"user@test.com","name":"测试用户","workshop":"生产车间","roles":["viewer"],"forcePasswordChange":true}}}
+结果: ✓ 通过
+
+----------------------------------------
+测试 3: 管理员登录
+方法: POST /auth/login
+状态码: 200 (期望: 200)
+响应: {"success":true,"message":"登录成功","data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk1YjE3Zi01MjViLTRiN2EtYTBhNS0zNmY2NTVmM2MyYTkiLCJlbWFpbCI6ImFkbWluQHRlc3QuY29tIiwicm9sZXMiOlsidmlld2VyIl0sImlhdCI6MTc2MzIyMTczNiwiZXhwIjoxNzYzMjI4OTM2LCJpc3MiOiJzdG9jay1kZWNrLWFwaSJ9.sRtAi1ZgbRsrskzXy8nfAASYMQpKmzELl6wYtNdTplI","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk1YjE3Zi01MjViLTRiN2EtYTBhNS0zNmY2NTVmM2MyYTkiLCJlbWFpbCI6ImFkbWluQHRlc3QuY29tIiwicm9sZXMiOlsidmlld2VyIl0sImlhdCI6MTc2MzIyMTczNiwiZXhwIjoxNzYzODI2NTM2LCJpc3MiOiJzdG9jay1kZWNrLWFwaSJ9.xgjjGajQr-oubKB6x6SqUViwbkhsIA-MJdlkO-GCkNg","user":{"id":"6795b17f-525b-4b7a-a0a5-36f655f3c2a9","email":"admin@test.com","name":"测试管理员","workshop":"测试车间","roles":["viewer"],"forcePasswordChange":true}}}
+结果: ✓ 通过
+
+----------------------------------------
+测试 3: 普通用户登录
+方法: POST /auth/login
+状态码: 200 (期望: 200)
+响应: {"success":true,"message":"登录成功","data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWFhYmE0MS0wYWExLTQ0Y2MtYmQyZi1jNjE4ZGJmNTljMzkiLCJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJyb2xlcyI6WyJ2aWV3ZXIiXSwiaWF0IjoxNzYzMjIxNzM2LCJleHAiOjE3NjMyMjg5MzYsImlzcyI6InN0b2NrLWRlY2stYXBpIn0.QmOEcqrqlAf5VsvtMTJirIcAUwUKHfgqaWTtcZHNmYw","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWFhYmE0MS0wYWExLTQ0Y2MtYmQyZi1jNjE4ZGJmNTljMzkiLCJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJyb2xlcyI6WyJ2aWV3ZXIiXSwiaWF0IjoxNzYzMjIxNzM2LCJleHAiOjE3NjM4MjY1MzYsImlzcyI6InN0b2NrLWRlY2stYXBpIn0.epINGGNb_huo9i09io6joF8CtVLp-FGpzINxnLOn53Q","user":{"id":"e1aaba41-0aa1-44cc-bd2f-c618dbf59c39","email":"user@test.com","name":"测试用户","workshop":"生产车间","roles":["viewer"],"forcePasswordChange":true}}}
+结果: ✓ 通过
+
+----------------------------------------
+测试 3: 错误密码登录
+方法: POST /auth/login
+状态码: 401 (期望: 401)
+响应: {"success":false,"error":"邮箱或密码错误"}
+结果: ✓ 通过
+
+----------------------------------------
+测试 4: 修改密码
+方法: POST /auth/change-password
+状态码: 400 (期望: 200)
+响应: {"success":false,"error":"输入验证失败","details":[{"path":"oldPassword","message":"Required"}]}
+结果: ✗ 失败
+
+----------------------------------------
+测试 5: 旧密码登录
+方法: POST /auth/login
+状态码: 200 (期望: 401)
+响应: {"success":true,"message":"登录成功","data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk1YjE3Zi01MjViLTRiN2EtYTBhNS0zNmY2NTVmM2MyYTkiLCJlbWFpbCI6ImFkbWluQHRlc3QuY29tIiwicm9sZXMiOlsidmlld2VyIl0sImlhdCI6MTc2MzIyMTczOCwiZXhwIjoxNzYzMjI4OTM4LCJpc3MiOiJzdG9jay1kZWNrLWFwaSJ9.e7Ia0aONRajXw6QxBg9MoPS8ew7YxKqq8NVyHyH-tws","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk1YjE3Zi01MjViLTRiN2EtYTBhNS0zNmY2NTVmM2MyYTkiLCJlbWFpbCI6ImFkbWluQHRlc3QuY29tIiwicm9sZXMiOlsidmlld2VyIl0sImlhdCI6MTc2MzIyMTczOCwiZXhwIjoxNzYzODI2NTM4LCJpc3MiOiJzdG9jay1kZWNrLWFwaSJ9.pWveZIKiTFSFLRCboCJ6jIEgbEhceSLeluaUD4cPs0k","user":{"id":"6795b17f-525b-4b7a-a0a5-36f655f3c2a9","email":"admin@test.com","name":"测试管理员","workshop":"测试车间","roles":["viewer"],"forcePasswordChange":true}}}
+结果: ✗ 失败
+
+----------------------------------------
+测试 6: 新密码登录
+方法: POST /auth/login
+状态码: 401 (期望: 200)
+响应: {"success":false,"error":"邮箱或密码错误"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 6: 获取用户列表
+方法: GET /users
+状态码: 401 (期望: 200)
+响应: {"success":false,"error":"未提供认证令牌"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 7: 普通用户获取列表
+方法: GET /users
+状态码: 403 (期望: 403)
+响应: {"success":false,"error":"权限不足","message":"需要以下角色之一: admin"}
+结果: ✓ 通过
+
+----------------------------------------
+测试 8: 创建新用户
+方法: POST /users
+状态码: 401 (期望: 201)
+响应: {"success":false,"error":"未提供认证令牌"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 8: 获取用户详情
+方法: GET /users/
+状态码: 401 (期望: 200)
+响应: {"success":false,"error":"未提供认证令牌"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 9: 更新用户
+方法: PUT /users/
+状态码: 401 (期望: 200)
+响应: {"success":false,"error":"未提供认证令牌"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 10: 删除用户
+方法: DELETE /users/
+状态码: 401 (期望: 200)
+响应: {"success":false,"error":"未提供认证令牌"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 11: 获取盘点记录
+方法: GET /inventory/records
+状态码: 200 (期望: 200)
+响应: {"success":true,"data":[],"pagination":{"page":1,"pageSize":20,"total":0,"totalPages":0}}
+结果: ✓ 通过
+
+----------------------------------------
+测试 12: 批量提交
+方法: POST /inventory/records/batch/submit
+状态码: 400 (期望: 200)
+响应: {"success":false,"error":"记录不存在"}
+结果: ✗ 失败
+
+----------------------------------------
+测试 13: 未认证访问
+方法: GET /users
+状态码: 401 (期望: 401)
+响应: {"success":false,"error":"未提供认证令牌"}
+结果: ✓ 通过
+
+----------------------------------------
+测试 14: 越权访问
+方法: POST /users
+状态码: 403 (期望: 403)
+响应: {"success":false,"error":"权限不足","message":"需要以下角色之一: admin"}
+结果: ✓ 通过
+
+----------------------------------------
+测试 15: 无效Token
+方法: GET /users
+状态码: 401 (期望: 401)
+响应: {"success":false,"error":"无效的认证令牌"}
+结果: ✓ 通过
+
+----------------------------------------
+测试 16: 用户登出
+方法: POST /auth/logout
+状态码: 200 (期望: 200)
+响应: {"success":true,"message":"登出成功"}

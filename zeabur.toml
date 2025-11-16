@@ -1,0 +1,44 @@
+# Zeabur配置文件
+# 该文件定义了项目如何在Zeabur平台上构建和部署
+
+[build]
+# 前端构建命令
+frontend_command = "npm install && npm run build"
+# 后端构建命令(在backend目录下)
+backend_command = "cd backend && npm install && npm run build"
+
+[services]
+# 前端服务配置
+[services.frontend]
+build_command = "npm install && npm run build"
+start_command = "npm run preview"
+port = 5173
+root_directory = "./"
+environment_variables = [
+  "VITE_API_BASE_URL"
+]
+
+# 后端服务配置
+[services.backend]
+build_command = "npm install && npm run build"
+start_command = "npm start"
+port = 8080
+root_directory = "./backend"
+environment_variables = [
+  "DATABASE_URL",
+  "JWT_ACCESS_SECRET",
+  "JWT_ACCESS_EXPIRY",
+  "JWT_REFRESH_SECRET",
+  "JWT_REFRESH_EXPIRY",
+  "PORT",
+  "NODE_ENV",
+  "ADMIN_INIT_KEY",
+  "ALLOWED_ORIGINS"
+]
+
+# 数据库服务配置(可选)
+[services.mysql]
+image = "mysql:8.0"
+port = 3306
+root_password = "${DB_ROOT_PASSWORD}"
+database = "fenghan_stock"
