@@ -15,6 +15,7 @@ COPY postcss.config.js ./
 COPY eslint.config.js ./
 COPY src ./src
 COPY public ./public
+COPY opensec ./opensec
 
 # 安装依赖
 RUN npm install --legacy-peer-deps
