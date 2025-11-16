@@ -16,8 +16,13 @@ COPY eslint.config.js ./
 COPY src ./src
 COPY public ./public
 
-# 安装依赖并构建
-RUN npm install
+# 安装依赖
+RUN npm install --legacy-peer-deps
+
+# 重建原生模块以确保兼容性
+RUN npm rebuild
+
+# 构建应用
 RUN npm run build
 
 # 生产阶段 - 使用轻量级的Node镜像提供静态文件

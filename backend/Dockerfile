@@ -11,8 +11,13 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY prisma ./prisma
 
-# 安装依赖并构建TypeScript
-RUN npm install
+# 安装依赖
+RUN npm install --legacy-peer-deps
+
+# 重建原生模块以确保兼容性
+RUN npm rebuild
+
+# 构建TypeScript
 RUN npm run build
 
 # 生产阶段
@@ -22,7 +27,7 @@ WORKDIR /app
 
 # 安装生产依赖
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install --omit=dev --legacy-peer-deps
 
 # 复制Prisma客户端
 COPY prisma ./prisma
