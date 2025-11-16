@@ -36,7 +36,6 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 # 复制依赖和 package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.prisma ./.prisma
 
 # 复制编译后的代码
 COPY --from=builder /app/dist ./dist
