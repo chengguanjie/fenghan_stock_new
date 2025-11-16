@@ -24,7 +24,7 @@ RUN npm rebuild
 RUN npx prisma@5.22.0 generate
 
 # 构建TypeScript（使用npx确保能找到tsc）
-RUN npx tsc
+RUN npm run build
 
 # 生产阶段
 FROM node:22-slim
