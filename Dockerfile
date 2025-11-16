@@ -1,7 +1,7 @@
 # 前端Dockerfile
 # 构建React应用
 
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN npm ci
 RUN npm run build
 
 # 生产阶段 - 使用轻量级的Node镜像提供静态文件
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
