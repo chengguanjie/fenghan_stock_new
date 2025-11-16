@@ -5,6 +5,9 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
+# 安装构建依赖（包括OpenSSL）
+RUN apt-get update -y && apt-get install -y openssl python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 # 复制后端源代码
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -17,6 +20,9 @@ RUN npm install --legacy-peer-deps
 # 重建原生模块以确保兼容性
 RUN npm rebuild
 
+# 生成Prisma客户端（在构建阶段生成）
+RUN npx prisma generate
+
 # 构建TypeScript
 RUN npm run build
 
@@ -25,13 +31,16 @@ FROM node:22-slim
 
 WORKDIR /app
 
+# 安装生产运行时依赖（OpenSSL）
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 # 安装生产依赖
 COPY package*.json ./
 RUN npm install --omit=dev --legacy-peer-deps
 
-# 复制Prisma客户端
+# 复制Prisma schema和生成的客户端
 COPY prisma ./prisma
-RUN npx prisma generate
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # 从构建阶段复制编译后的JavaScript
 COPY --from=builder /app/dist ./dist
