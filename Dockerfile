@@ -5,6 +5,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# 安装构建依赖 (用于编译原生模块)
+RUN apk add --no-cache python3 make g++ gcc
+
 # 复制前端源代码
 COPY package*.json ./
 COPY tsconfig*.json ./
