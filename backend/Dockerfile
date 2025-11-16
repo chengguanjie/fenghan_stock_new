@@ -20,8 +20,8 @@ RUN npm install --legacy-peer-deps
 # 重建原生模块以确保兼容性
 RUN npm rebuild
 
-# 生成Prisma客户端（在构建阶段生成）
-RUN npx prisma generate
+# 生成Prisma客户端（在构建阶段生成，使用项目中的prisma版本）
+RUN npm run prisma:generate
 
 # 构建TypeScript
 RUN npm run build
