@@ -19,6 +19,11 @@ COPY prisma ./prisma
 # 生成 Prisma 客户端（明确指定版本 5.22.0 以匹配 @prisma/client）
 RUN npx prisma@5.22.0 generate
 
+# 调试：检查 typescript 是否安装
+RUN echo "=== Checking typescript installation ===" && \
+    npm list typescript || echo "TypeScript not found in dependencies" && \
+    ls -la node_modules/.bin/ | grep -E "tsc|typescript" || echo "No tsc binary found"
+
 # 复制后端源代码
 COPY src ./src
 
