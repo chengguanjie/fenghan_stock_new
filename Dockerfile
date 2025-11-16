@@ -1,7 +1,7 @@
 # 前端Dockerfile
 # 构建React应用
 
-FROM node:22-slim AS builder
+FROM node:22 AS builder
 
 WORKDIR /app
 
@@ -18,9 +18,6 @@ COPY public ./public
 
 # 安装依赖
 RUN npm install --legacy-peer-deps
-
-# 重建原生模块以确保兼容性
-RUN npm rebuild
 
 # 构建应用
 RUN npm run build
