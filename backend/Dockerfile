@@ -22,8 +22,8 @@ RUN npx prisma@5.22.0 generate
 # 复制后端源代码
 COPY src ./src
 
-# 构建 TypeScript（使用 npm run build，因为 typescript 已在 devDependencies 中安装）
-RUN npm run build
+# 构建 TypeScript（直接使用 node_modules 中的 tsc）
+RUN ./node_modules/.bin/tsc
 
 # 生产阶段
 FROM node:22-slim
